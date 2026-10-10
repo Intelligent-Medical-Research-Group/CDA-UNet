@@ -1,0 +1,21 @@
+schema_version: 1
+modality: mass
+resolution: 101
+rank: 32
+conditioning: xy_gate
+normalization: input_group_encoder_gate_decoder
+features: [64, 128, 256, 512]
+training:
+  epochs: 1000
+  batch_size: 16
+  learning_rate: 0.0001
+  seed: 0
+  folds: 8
+  fold_strategy: balanced
+  shuffle: true
+  parent_policy: consensus
+  checkpoint_every: 100
+  amp: true
+evaluation:
+  parent_policy: self
+  threshold: 0.0
