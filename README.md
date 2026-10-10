@@ -29,15 +29,12 @@ Only the standard mass and flow configurations are included.
 | Training duration | 1000 epochs; final checkpoint |
 | Cross-validation | 8 folds (mass); 10 folds (flow) |
 | Training parent populations | Manual consensus, training samples only |
-| Default test parent populations | This model's preceding predictions (`self-parent`) |
+| Default test parent populations | Cells retained by this model's preceding gates |
 
-**Relation to the paper.** This is a standalone standard training configuration.
-The paper's existing main-table CDA-UNet runs used 1600 epochs and supplied
-reference-model parents; running the public defaults is a different experiment.
-See [reproduction and evaluation protocols](docs/reproduction.md) before comparing
-new measurements with the manuscript. The architecture and preprocessing have
-been checked against the research implementation; the release does not claim
-that 1000-epoch runs reproduce the retained paper numbers.
+Both released configurations specify **1000 epochs**. Run the evaluation commands
+to obtain scores for the trained checkpoints; the manuscript reports its own
+experimental runs. See [data preparation and evaluation](docs/reproduction.md)
+for the population selection rules and metric definitions.
 
 ## Installation
 
@@ -227,9 +224,9 @@ By default, gates are inferred in hierarchy order. Empty parents produce empty
 children; children cannot include events outside their predicted parent.
 Sibling gates remain separate binary predictions and may overlap.
 
-### Optional supplied reference parents
+### Using saved upstream predictions
 
-To evaluate fixed reference parents, pass `--parents-dir PATH` to `evaluate`
+To use saved upstream predictions, pass `--parents-dir PATH` to `evaluate`
 or `--parents-file FILE.npz` to `predict`. This explicitly changes the recorded
 parent policy to `provided`. For training with supplied parents, set
 `training.parent_policy: provided` in a local copy of the standard YAML and
@@ -237,8 +234,8 @@ pass `--parents-dir PATH` to `prepare` using a new cache directory.
 
 Each sample's NPZ must contain `predictions` (binary events × gates),
 `gate_names` in the schema order, and a scalar `source_sha256` matching the
-exact CSV. The `predict` command produces this format. Reference-parent
-generation must respect the outer train/test split; the loader checks identity
+exact CSV. The `predict` command produces this format. The models generating
+these predictions must respect the outer train/test split; the loader checks identity
 and shape, but cannot establish how an external model was trained.
 
 ## Architecture

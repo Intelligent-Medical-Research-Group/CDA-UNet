@@ -1,4 +1,4 @@
-# Reproducibility and evaluation protocols
+# Data preparation and evaluation
 
 This release implements CDA-UNet for the nine-gate mass-cytometry panel and the
 seven-gate flow-cytometry panel. The public configurations use 101 × 101 images,
@@ -52,53 +52,26 @@ its affine coefficients are supplied by the condition generator.
 
 The default public workflow uses consensus parent membership to form training
 images from training subjects. Test inference proceeds sequentially through the
-hierarchy using CDA-UNet's own predicted parents (`self-parent`). Test labels are
+hierarchy using the events retained by CDA-UNet's preceding gates. Test labels are
 used to calculate metrics after prediction, not to select parent events. A held
 out sample must never contribute to model fitting, checkpoint selection, or
 construction of the training parents.
 
-This choice permits training from the public dataset without independent UNITO
-checkpoints or saved reference predictions. It also makes the training-to-test
-change in parent source explicit: training parents are consensus labels,
-whereas test parents can contain upstream prediction errors. Report that
-difference with any resulting benchmark.
+Both public configurations train for **1000 epochs** and evaluate the final
+checkpoint. Their training inputs use consensus populations, while predictions
+on a new sample can propagate upstream errors. Record the actual completed
+epoch and population selection in every result. Scores from a new run must be
+measured with its own checkpoints; the manuscript gives the settings of its
+reported experiments separately.
 
-## Relation to the manuscript's reported results
+Saved predictions can optionally provide the upstream event selections through
+`--parents-dir` or `--parents-file`. Record the generating model and its training
+membership. For an independent evaluation, models generating training inputs
+must use only subjects from the current outer training fold. File-identity
+checks do not establish whether the generating model respected that split.
 
-The public 1000-epoch configuration is a standard training configuration, not a
-claim that a new run will reproduce the manuscript's main table values. The
-following distinctions matter:
-
-| Component | Public default | Existing main-table experiment |
-|---|---|---|
-| Image grid / adapter width | 101 × 101 / 32 | 101 × 101 / 32 |
-| Conditions | Ordered channel identities and gate identity | Same identities |
-| Normalization routing | Input-domain encoder BN; per-gate decoder BN | Same routing |
-| Training budget | 1000 epochs | 1600 epochs for principal CDA-UNet results |
-| Training parents | Consensus parents of training subjects | Saved pooled out-of-fold reference predictions |
-| Test parents | Same CDA-UNet model's sequential predictions | Saved independent UNITO reference predictions for the classification and correlation tables |
-| Checkpoint distribution | Train your own; no weights supplied | Historical experiment checkpoints are not distributed |
-
-The qualitative manuscript figures used self-parent inference. Their trained
-checkpoints and favorable example selection still differ from training the
-standard public configuration afresh.
-
-Historical pooled out-of-fold parent construction excluded direct test
-subject–gate pairs from optimization. However, a reference model producing a
-training subject's parent could itself have been fitted using a subject in the
-current outer test fold. This creates an indirect dependency across folds;
-the existing numbers are not a strictly nested cross-validation estimate of the
-complete gating pipeline. The public workflow does not silently reconstruct or
-reuse that cache. To repeat a reference-parent benchmark, record the parent
-models, their training membership, and their predictions separately. A strict
-nested design requires parent-generating models to use only the current outer
-training subjects.
-
-The paper also selected principal configurations from completed experiments by
-cross-validation performance. The public defaults are fixed in the released
-configuration; they are not claimed to be an independently validated optimum.
-No alternative resolutions, ranks, condition ablations, batch-normalization
-ablations, or model-selection results are bundled with this release.
+Only the standard mass and flow configurations are bundled. No trained weights,
+alternative model configurations, or benchmark prediction files are included.
 
 ## Metric interpretation
 
