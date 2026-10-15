@@ -11,7 +11,6 @@ and gate identity**. These conditions are channel labels, not cell coordinates.
 This repository contains data preparation, the model, cross-validation training,
 hierarchical inference, and cell-level evaluation for **mass cytometry (9 gates)**
 and **flow cytometry (7 gates)**. Train the two modalities separately.
-No subject data, prediction files, or trained weights are distributed.
 
 ## Standard configuration
 
@@ -26,14 +25,11 @@ Only the standard mass and flow configurations are included.
 | Normalization | Input-domain BN in encoder; per-gate BN in decoder |
 | Optimizer / learning rate | Adam / 0.0001 |
 | Loss / batch size | Binary cross-entropy with logits / 16 |
-| Training duration | 1000 epochs; final checkpoint |
+| Training duration | 1000 epochs |
 | Cross-validation | 8 folds (mass); 10 folds (flow) |
-| Training parent populations | Manual consensus, training samples only |
-| Default test parent populations | Cells retained by this model's preceding gates |
 
-Both released configurations specify **1000 epochs**. Run the evaluation commands
-to obtain scores for the trained checkpoints; the manuscript reports its own
-experimental runs. See [data preparation and evaluation](docs/reproduction.md)
+Both released configurations specify **1000 epochs**.
+See [data preparation and evaluation](docs/reproduction.md)
 for the population selection rules and metric definitions.
 
 ## Installation
@@ -121,8 +117,7 @@ cda-unet train --config configs/flow.yaml --cache-dir cache/flow --output-dir ru
 
 The default is exactly 1000 epochs. Every batch contains one gate, so the correct
 BN domain is updated. Subjects and gate batches are shuffled each epoch. CUDA
-training uses bfloat16 when supported; otherwise training uses float32. Test
-images never enter the optimizer pipeline, and no test score selects a checkpoint.
+training uses bfloat16 when supported; otherwise training uses float32.
 
 Outputs for each fold include:
 

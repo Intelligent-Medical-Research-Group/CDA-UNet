@@ -60,18 +60,12 @@ construction of the training parents.
 Both public configurations train for **1000 epochs** and evaluate the final
 checkpoint. Their training inputs use consensus populations, while predictions
 on a new sample can propagate upstream errors. Record the actual completed
-epoch and population selection in every result. Scores from a new run must be
-measured with its own checkpoints; the manuscript gives the settings of its
-reported experiments separately.
+epoch and population selection in every result.
 
 Saved predictions can optionally provide the upstream event selections through
 `--parents-dir` or `--parents-file`. Record the generating model and its training
 membership. For an independent evaluation, models generating training inputs
-must use only subjects from the current outer training fold. File-identity
-checks do not establish whether the generating model respected that split.
-
-Only the standard mass and flow configurations are bundled. No trained weights,
-alternative model configurations, or benchmark prediction files are included.
+must use only subjects from the current outer training fold.
 
 ## Metric interpretation
 
@@ -79,8 +73,6 @@ Calculate accuracy, recall, precision, and F1 for each subject and gate over all
 original events, including events rejected by a parent. Use zero for undefined
 precision, recall, or F1. Average subject metrics with equal weight to obtain
 each gate's result, and average gate results with equal weight for `Overall`.
-Do not calculate mean F1 from mean precision and mean recall, or pool all events
-across subjects and call that value the same overall statistic.
 
 Evaluation saves full-precision values in `report.json` and four-decimal summaries
 in `per_sample.csv` and `per_gate.csv`. Aggregate the JSON reports so display
@@ -89,14 +81,3 @@ assignments, the same configuration and parent policy, and the same completed
 epoch. A subset of folds can be aggregated for progress inspection; it is not a
 complete cross-validation result. Check `complete_cross_validation` in the
 aggregate report before describing a result as covering every fold.
-
-For population percentages, distinguish a gate's positive-event fraction of all
-events from its fraction of its parent. The manuscript's Pearson analyses use
-the former; gate-adjacent figure labels use the latter. Correlation with manual
-consensus measures association and does not establish interchangeability with
-expert gating.
-
-Record the repository commit, configuration, dataset version, split manifest,
-random seed, training epoch, parent policy, and software versions alongside any
-new result. Hardware and nondeterministic GPU operations can affect numerical
-agreement, so exact repeated values should not be assumed.
